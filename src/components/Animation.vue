@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { isArray } from "@vue/shared";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 interface SingleKeyframe {
   from: Partial<CSSStyleDeclaration>;
@@ -15,6 +15,7 @@ interface AnimationProps {
   // custom props
   keyframes: SingleKeyframe | MultipleKeyframes[];
   tag?: string;
+  modelValue?: boolean;
 
   // animation props
   delay?: number;
@@ -31,6 +32,7 @@ interface AnimationProps {
 const props = withDefaults(defineProps<AnimationProps>(), {
   // custom props
   tag: "div",
+  modelValue: false,
 
   // animation props
   iterations: 1,
@@ -44,15 +46,39 @@ const props = withDefaults(defineProps<AnimationProps>(), {
   playbackRate: 1,
 });
 
-const animationContainerElement = ref<HTMLElement>();
+const emit = defineEmits(["update:modelValue"]);
 
-const animate = () => {
+const animationContainerElement = ref<HTMLElement>();
+const animation = ref<Animation>();
+
+const animate = async () => {
+  try {
+    if (animation.value) {
+      animation.value.play();
+
+      await animation.value.finished;
+      emit("update:modelValue", false);
+    }
+  } catch (error) {}
+};
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    console.log("modelValue changed", value);
+
+    if (value) animate();
+    else animation.value?.cancel();
+  }
+);
+
+onMounted(() => {
   const animatingElement = animationContainerElement.value?.firstElementChild;
   if (!animatingElement) return;
 
   const keyframes = isArray(props.keyframes)
-    ? <Keyframe[]>props.keyframes
-    : <Keyframe[]>[props.keyframes.from, props.keyframes.to];
+    ? <Keyframe[]>props.keyframes // animation is multiple keyframes
+    : <Keyframe[]>[props.keyframes.from, props.keyframes.to]; // animation is single keyframe
 
   const keyframeOptions = <KeyframeAnimationOptions>{
     duration: props.duration,
@@ -72,12 +98,8 @@ const animate = () => {
     keyframeOptions
   );
 
-  const animation = new Animation(keyframeEffectConfigs);
-
-  animation.play();
-};
-
-onMounted(animate);
+  animation.value = new Animation(keyframeEffectConfigs);
+});
 </script>
 <template>
   <component :is="tag" ref="animationContainerElement">
