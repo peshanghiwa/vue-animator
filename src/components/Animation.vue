@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { isArray } from "@vue/shared";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 interface SingleKeyframe {
   from: Partial<CSSStyleDeclaration>;
@@ -50,15 +50,45 @@ const emit = defineEmits(["update:modelValue"]);
 
 const animationContainerElement = ref<HTMLElement>();
 const animation = ref<Animation>();
+const keyframes = computed(
+  () =>
+    isArray(props.keyframes)
+      ? <Keyframe[]>props.keyframes // animation is multiple keyframes
+      : <Keyframe[]>[props.keyframes.from, props.keyframes.to] // animation is single keyframe
+);
+
+const keyframeOptions = computed(
+  () =>
+    <KeyframeAnimationOptions>{
+      duration: props.duration,
+      iterations: props.iterations,
+      delay: props.delay,
+      easing: props.easing,
+      endDelay: props.endDelay,
+      fill: props.fill,
+      iterationStart: props.iterationStart,
+      direction: props.direction,
+      playbackRate: props.playbackRate,
+    }
+);
 
 const animate = async () => {
   try {
-    if (animation.value) {
-      animation.value.play();
+    const animatingElement = animationContainerElement.value?.firstElementChild;
+    if (!animatingElement) return;
 
-      await animation.value.finished;
-      emit("update:modelValue", false);
-    }
+    const keyframeEffectConfigs = new KeyframeEffect(
+      animatingElement,
+      keyframes.value,
+      keyframeOptions.value
+    );
+
+    animation.value = new Animation(keyframeEffectConfigs);
+
+    animation.value.play();
+
+    await animation.value.finished;
+    emit("update:modelValue", false);
   } catch (error) {}
 };
 
@@ -73,32 +103,7 @@ watch(
 );
 
 onMounted(() => {
-  const animatingElement = animationContainerElement.value?.firstElementChild;
-  if (!animatingElement) return;
-
-  const keyframes = isArray(props.keyframes)
-    ? <Keyframe[]>props.keyframes // animation is multiple keyframes
-    : <Keyframe[]>[props.keyframes.from, props.keyframes.to]; // animation is single keyframe
-
-  const keyframeOptions = <KeyframeAnimationOptions>{
-    duration: props.duration,
-    iterations: props.iterations,
-    delay: props.delay,
-    easing: props.easing,
-    endDelay: props.endDelay,
-    fill: props.fill,
-    iterationStart: props.iterationStart,
-    direction: props.direction,
-    playbackRate: props.playbackRate,
-  };
-
-  const keyframeEffectConfigs = new KeyframeEffect(
-    animatingElement,
-    keyframes,
-    keyframeOptions
-  );
-
-  animation.value = new Animation(keyframeEffectConfigs);
+  props.modelValue && animate();
 });
 </script>
 <template>
