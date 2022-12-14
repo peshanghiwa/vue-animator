@@ -1,40 +1,86 @@
 <script lang="ts" setup>
+import { isArray } from "@vue/shared";
 import { onMounted, ref } from "vue";
 
-interface Props extends EffectTiming {
-  test?: string;
+interface SingleKeyframe {
+  from: Partial<CSSStyleDeclaration>;
+  to: Partial<CSSStyleDeclaration>;
 }
-const props = withDefaults(defineProps<Props>(), {
+
+interface MultipleKeyframes {
+  [key: string]: Partial<CSSStyleDeclaration>;
+}
+
+interface AnimationProps {
+  // custom props
+  keyframes: SingleKeyframe | MultipleKeyframes[];
+  tag?: string;
+
+  // animation props
+  delay?: number;
+  direction?: PlaybackDirection;
+  duration?: number | string;
+  easing?: string;
+  endDelay?: number;
+  fill?: FillMode;
+  iterationStart?: number;
+  iterations?: number;
+  playbackRate?: number;
+}
+
+const props = withDefaults(defineProps<AnimationProps>(), {
+  // custom props
+  tag: "div",
+
+  // animation props
+  iterations: 1,
   delay: 0,
+  direction: "normal",
   duration: 1000,
   easing: "linear",
   endDelay: 0,
   fill: "none",
   iterationStart: 0,
-  iterations: 1,
-  direction: "normal",
   playbackRate: 1,
 });
 
-const KeyframeAnimationOptions = <KeyframeAnimationOptions>{
-  delay: props.delay,
-  duration: props.duration,
-  easing: props.easing,
-  endDelay: props.endDelay,
-  fill: props.fill,
-  iterationStart: props.iterationStart,
-  iterations: props.iterations,
-  direction: props.direction,
-  playbackRate: props.playbackRate,
+const animationContainerElement = ref<HTMLElement>();
+
+const animate = () => {
+  const animatingElement = animationContainerElement.value?.firstElementChild;
+  if (!animatingElement) return;
+
+  const keyframes = isArray(props.keyframes)
+    ? <Keyframe[]>props.keyframes
+    : <Keyframe[]>[props.keyframes.from, props.keyframes.to];
+
+  const keyframeOptions = <KeyframeAnimationOptions>{
+    duration: props.duration,
+    iterations: props.iterations,
+    delay: props.delay,
+    easing: props.easing,
+    endDelay: props.endDelay,
+    fill: props.fill,
+    iterationStart: props.iterationStart,
+    direction: props.direction,
+    playbackRate: props.playbackRate,
+  };
+
+  const keyframeEffectConfigs = new KeyframeEffect(
+    animatingElement,
+    keyframes,
+    keyframeOptions
+  );
+
+  const animation = new Animation(keyframeEffectConfigs);
+
+  animation.play();
 };
+
+onMounted(animate);
 </script>
 <template>
-  <div id="animationElementWrapper">
-    <slot ref="slot" />
-  </div>
+  <component :is="tag" ref="animationContainerElement">
+    <slot />
+  </component>
 </template>
-<style scoped>
-#animationElementWrapper {
-  display: inline-block;
-}
-</style>

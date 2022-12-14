@@ -4,6 +4,17 @@ import Animation from "./components/Animation.vue";
 
 <template>
   <Animation>
+  <Animation
+    :keyframes="[
+      { backgroundColor: 'transparent' },
+      { backgroundColor: 'red' },
+      { backgroundColor: 'blue' },
+      { backgroundColor: 'green' },
+      { backgroundColor: 'yellow' },
+      { backgroundColor: 'transparent' },
+    ]"
+    :iterations="3"
+  >
     <div>test</div>
   </Animation>
 </template>
