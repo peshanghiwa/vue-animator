@@ -82,10 +82,12 @@ const keyframeOptions = computed(
     }
 );
 
-const animate = async () => {
-  try {
-    const animatingElement = animationContainerElement.value?.firstElementChild;
-    if (!animatingElement) return;
+const animate = () => {
+  const animatingElements = animationContainerElement.value?.children;
+  if (!animatingElements) return;
+
+  for (let i = 0; i < animatingElements.length; i++) {
+    const animatingElement = animatingElements[i];
 
     const keyframeEffectConfigs = new KeyframeEffect(
       animatingElement,
@@ -94,22 +96,25 @@ const animate = async () => {
     );
 
     animation.value = new Animation(keyframeEffectConfigs);
+    animationProcess(animation.value);
+  }
+};
 
+const animationProcess = async (animation: Animation) => {
+  try {
     emit("beforeStart");
+    emit("running", 0);
+    animation.play();
     interval.value = setInterval(() => {
-      if (animation.value?.playState === "running")
-        emit(
-          "running",
-
-          animation.value.currentTime?.toFixed(2)
-        );
+      if (animation?.playState === "running")
+        emit("running", Number(animation.currentTime?.toFixed(2)));
       else clearInterval(interval.value);
     }, 10);
-    animation.value.play();
-    animation.value.addEventListener("finish", () => {
+    animation.addEventListener("finish", () => {
+      emit("running", Number(animation?.currentTime?.toFixed(2)));
       emit("update:modelValue", false);
     });
-    await animation.value.finished;
+    await animation.finished;
     if (props.resetAfterEnd) emit("update:modelValue", false);
     emit("afterEnd");
   } catch (error) {}
