@@ -16,6 +16,7 @@ interface AnimationProps {
   keyframes: SingleKeyframe | MultipleKeyframes[];
   tag?: string;
   modelValue?: boolean;
+  resetAfterEnd: boolean;
 
   // animation props
   delay?: number;
@@ -33,6 +34,7 @@ const props = withDefaults(defineProps<AnimationProps>(), {
   // custom props
   tag: "div",
   modelValue: false,
+  resetAfterEnd: false,
 
   // animation props
   iterations: 1,
@@ -88,7 +90,7 @@ const animate = async () => {
     animation.value.play();
 
     await animation.value.finished;
-    emit("update:modelValue", false);
+    if (props.resetAfterEnd) emit("update:modelValue", false);
   } catch (error) {}
 };
 
