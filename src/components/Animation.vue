@@ -16,7 +16,7 @@ interface AnimationProps {
   keyframes: SingleKeyframe | MultipleKeyframes[];
   tag?: string;
   modelValue?: boolean;
-  resetAfterEnd: boolean;
+  resetAfterEnd?: boolean;
 
   // animation props
   delay?: number;
@@ -48,7 +48,15 @@ const props = withDefaults(defineProps<AnimationProps>(), {
   playbackRate: 1,
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const interval = ref<number>();
+
+const emit = defineEmits([
+  "update:modelValue",
+  "beforeStart",
+  "afterEnd",
+  "cancel",
+  "running",
+]);
 
 const animationContainerElement = ref<HTMLElement>();
 const animation = ref<Animation>();
@@ -87,10 +95,23 @@ const animate = async () => {
 
     animation.value = new Animation(keyframeEffectConfigs);
 
-    animation.value.play();
+    emit("beforeStart");
+    interval.value = setInterval(() => {
+      if (animation.value?.playState === "running")
+        emit(
+          "running",
 
+          animation.value.currentTime?.toFixed(2)
+        );
+      else clearInterval(interval.value);
+    }, 10);
+    animation.value.play();
+    animation.value.addEventListener("finish", () => {
+      emit("update:modelValue", false);
+    });
     await animation.value.finished;
     if (props.resetAfterEnd) emit("update:modelValue", false);
+    emit("afterEnd");
   } catch (error) {}
 };
 
