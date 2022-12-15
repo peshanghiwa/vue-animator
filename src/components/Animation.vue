@@ -118,10 +118,13 @@ const animate = async () => {
 watch(
   () => props.modelValue,
   (value) => {
-    console.log("modelValue changed", value);
-
     if (value) animate();
-    else animation.value?.cancel();
+    else {
+      if (animation.value?.playState === "running") {
+        animation.value?.cancel();
+        emit("cancel");
+      }
+    }
   }
 );
 
