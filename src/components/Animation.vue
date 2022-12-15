@@ -2,18 +2,18 @@
 import { isArray } from "@vue/shared";
 import { computed, onMounted, ref, watch } from "vue";
 
-interface SingleKeyframe {
-  from: Partial<CSSStyleDeclaration>;
-  to: Partial<CSSStyleDeclaration>;
-}
+type AnimationKeyframe = Partial<CSSStyleDeclaration>;
 
-interface MultipleKeyframes {
-  [key: string]: Partial<CSSStyleDeclaration>;
-}
+type SingleKeyframe = {
+  from: AnimationKeyframe;
+  to: AnimationKeyframe;
+};
 
-interface AnimationProps {
+type MultipleKeyframes = AnimationKeyframe[];
+
+type AnimationProps = {
   // custom props
-  keyframes: SingleKeyframe | MultipleKeyframes[];
+  keyframes: SingleKeyframe | MultipleKeyframes;
   tag?: string;
   modelValue?: boolean;
   resetAfterEnd?: boolean;
@@ -28,8 +28,7 @@ interface AnimationProps {
   iterationStart?: number;
   iterations?: number;
   playbackRate?: number;
-}
-
+};
 const props = withDefaults(defineProps<AnimationProps>(), {
   // custom props
   tag: "div",
