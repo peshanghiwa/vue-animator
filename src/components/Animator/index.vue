@@ -1,15 +1,74 @@
 <script lang="ts" setup>
-// import { isArray } from "@vue/shared";
-// import { computed, onMounted, ref, watch } from "vue";
+import { isArray } from "@vue/shared";
+import { computed, onMounted, ref, watch } from "vue";
+import { animate } from "../../composables/animation";
+type ComponentProps = {
+  from?: Keyframe;
+  to: Keyframe;
+  tag?: string;
 
-// type AnimationKeyframe = Partial<CSSStyleDeclaration>;
+  delay?: number;
+  direction?: PlaybackDirection;
+  duration?: number | string;
+  easing?: string;
+  endDelay?: number;
+  fill?: FillMode;
+  iterationStart?: number;
+  iterations?: number;
+  playbackRate?: number;
+};
 
-// type SingleKeyframe = {
-//   from: AnimationKeyframe;
-//   to: AnimationKeyframe;
-// };
+const props = withDefaults(defineProps<ComponentProps>(), {
+  tag: "div",
 
-// type MultipleKeyframes = AnimationKeyframe[];
+  delay: 0,
+  direction: "normal",
+  duration: 2000,
+  easing: "linear",
+  endDelay: 0,
+  fill: "none",
+  iterationStart: 0,
+  iterations: 1,
+  playbackRate: 1,
+});
+
+const keyframes = computed(() => {
+  const from = props.from || {}; // TODO: add support for (from) prop not existing
+  const to = isArray(props.to) ? props.to : [props.to]; // TODO: add support for multiple keyframes
+
+  return [from, ...to];
+});
+
+const effectTiming = computed<EffectTiming>(() => ({
+  duration: props.duration,
+  iterations: props.iterations,
+  delay: props.delay,
+  easing: props.easing,
+  endDelay: props.endDelay,
+  fill: props.fill,
+  iterationStart: props.iterationStart,
+  direction: props.direction,
+  playbackRate: props.playbackRate,
+}));
+
+const animationContainerElement = ref<HTMLElement>();
+const animation = ref<Animation>();
+
+const onAnimate = () => {
+  const animatingElements = animationContainerElement.value?.children;
+  if (!animatingElements) return;
+
+  const animatingElement = animatingElements[0] as HTMLElement;
+
+  animation.value = animate(
+    animatingElement,
+    keyframes.value,
+    effectTiming.value
+  );
+
+  animation.value.play();
+  // animationProcess(animation.value);
+};
 
 // type AnimationProps = {
 //   // custom props
@@ -18,16 +77,6 @@
 //   modelValue?: boolean;
 //   resetAfterEnd?: boolean;
 
-//   // animation props
-//   delay?: number;
-//   direction?: PlaybackDirection;
-//   duration?: number | string;
-//   easing?: string;
-//   endDelay?: number;
-//   fill?: FillMode;
-//   iterationStart?: number;
-//   iterations?: number;
-//   playbackRate?: number;
 // };
 // const props = withDefaults(defineProps<AnimationProps>(), {
 //   // custom props
@@ -35,16 +84,6 @@
 //   modelValue: false,
 //   resetAfterEnd: false,
 
-//   // animation props
-//   iterations: 1,
-//   delay: 0,
-//   direction: "normal",
-//   duration: 1000,
-//   easing: "linear",
-//   endDelay: 0,
-//   fill: "none",
-//   iterationStart: 0,
-//   playbackRate: 1,
 // });
 
 // const interval = ref<number>();
@@ -56,30 +95,6 @@
 //   "cancel",
 //   "running",
 // ]);
-
-// const animationContainerElement = ref<HTMLElement>();
-// const animation = ref<Animation>();
-// const keyframes = computed(
-//   () =>
-//     isArray(props.keyframes)
-//       ? <Keyframe[]>props.keyframes // animation is multiple keyframes
-//       : <Keyframe[]>[props.keyframes.from, props.keyframes.to] // animation is single keyframe
-// );
-
-// const keyframeOptions = computed(
-//   () =>
-//     <KeyframeAnimationOptions>{
-//       duration: props.duration,
-//       iterations: props.iterations,
-//       delay: props.delay,
-//       easing: props.easing,
-//       endDelay: props.endDelay,
-//       fill: props.fill,
-//       iterationStart: props.iterationStart,
-//       direction: props.direction,
-//       playbackRate: props.playbackRate,
-//     }
-// );
 
 // const animate = () => {
 //   const animatingElements = animationContainerElement.value?.children;
@@ -132,12 +147,12 @@
 //   }
 // );
 
-// onMounted(() => {
-//   props.modelValue && animate();
-// });
+onMounted(() => {
+  onAnimate();
+});
 </script>
 <template>
-  <!-- <component :is="tag" ref="animationContainerElement">
+  <component :is="tag" ref="animationContainerElement">
     <slot />
-  </component> -->
+  </component>
 </template>
