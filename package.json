@@ -1,12 +1,27 @@
 {
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/vue-animator.umd.js",
+  "module": "./dist/vue-animator.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-animator.es.js",
+      "require": "./dist/vue-animator.umd.js"
+    }
+  },
+  "types": "./dist/types/index.d.ts",
   "name": "vue-animator",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build": "vite build && vue-tsc --emitDeclarationOnly && mv dist/src dist/types",
+    "preserve": "vite build",
+    "serve": "vite preview --port 5050",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "vue": "^3.2.45"
