@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { isArray } from "@vue/shared";
 import { computed, onMounted, ref, watch } from "vue";
 import { animate, fromTo } from "../../composables/animation";
 type ComponentProps = {
@@ -32,6 +31,9 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   playbackRate: 1,
 });
 
+const animationContainerElement = ref<HTMLElement>();
+const animation = ref<Animation>();
+
 const keyframes = computed(() =>
   fromTo(
     animationContainerElement.value?.children[0] as HTMLElement,
@@ -52,9 +54,6 @@ const effectTiming = computed<EffectTiming>(() => ({
   playbackRate: props.playbackRate,
 }));
 
-const animationContainerElement = ref<HTMLElement>();
-const animation = ref<Animation>();
-
 const onAnimate = () => {
   const animatingElements = animationContainerElement.value?.children;
   if (!animatingElements) return;
@@ -74,14 +73,12 @@ const onAnimate = () => {
 // type AnimationProps = {
 //   // custom props
 //   keyframes: SingleKeyframe | MultipleKeyframes;
-//   tag?: string;
 //   modelValue?: boolean;
 //   resetAfterEnd?: boolean;
 
 // };
 // const props = withDefaults(defineProps<AnimationProps>(), {
 //   // custom props
-//   tag: "div",
 //   modelValue: false,
 //   resetAfterEnd: false,
 

@@ -1,22 +1,18 @@
 <script setup lang="ts">
-import Animation from "./components/Animation.vue";
+import { Animator } from ".";
 </script>
 
 <template>
-  <Animation>
-  <Animation
-    :keyframes="[
-      { backgroundColor: 'transparent' },
-      { backgroundColor: 'red' },
-      { backgroundColor: 'blue' },
-      { backgroundColor: 'green' },
-      { backgroundColor: 'yellow' },
-      { backgroundColor: 'transparent' },
+  <Animator
+    :to="[
+      {
+        transform: 'translateX(100px)',
+        backgroundColor: 'red',
+      },
     ]"
-    :iterations="3"
   >
     <div>test</div>
-  </Animation>
+  </Animator>
 </template>
 
 <style scoped></style>
