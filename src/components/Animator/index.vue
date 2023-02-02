@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { isArray } from "@vue/shared";
 import { computed, onMounted, ref, watch } from "vue";
-import { animate } from "../../composables/animation";
+import { animate, fromTo } from "../../composables/animation";
 type ComponentProps = {
   from?: Keyframe;
-  to: Keyframe;
+  to: Keyframe | Keyframe[];
   tag?: string;
 
   delay?: number;
@@ -32,12 +32,13 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   playbackRate: 1,
 });
 
-const keyframes = computed(() => {
-  const from = props.from || {}; // TODO: add support for (from) prop not existing
-  const to = isArray(props.to) ? props.to : [props.to]; // TODO: add support for multiple keyframes
-
-  return [from, ...to];
-});
+const keyframes = computed(() =>
+  fromTo(
+    animationContainerElement.value?.children[0] as HTMLElement,
+    props.from,
+    props.to
+  )
+);
 
 const effectTiming = computed<EffectTiming>(() => ({
   duration: props.duration,
