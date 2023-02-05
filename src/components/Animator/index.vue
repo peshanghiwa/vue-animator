@@ -141,69 +141,6 @@ onMounted(() => {
     onAnimate();
   }
 });
-
-// type AnimationProps = {
-//   // custom props
-//   keyframes: SingleKeyframe | MultipleKeyframes;
-//   modelValue?: boolean;
-//   resetAfterEnd?: boolean;
-
-// };
-// const props = withDefaults(defineProps<AnimationProps>(), {
-//   // custom props
-//   modelValue: false,
-//   resetAfterEnd: false,
-
-// });
-
-// const interval = ref<number>();
-
-// const emit = defineEmits([
-//   "update:modelValue",
-//   "beforeStart",
-//   "afterEnd",
-//   "cancel",
-//   "running",
-// ]);
-
-// const animate = () => {
-//   const animatingElements = animatingElementParentRef.value?.children;
-//   if (!animatingElements) return;
-
-//   for (let i = 0; i < animatingElements.length; i++) {
-//     const animatingElement = animatingElements[i];
-
-//     const keyframeEffectConfigs = new KeyframeEffect(
-//       animatingElement,
-//       keyframes.value,
-//       keyframeOptions.value
-//     );
-
-//     animation.value = new Animation(keyframeEffectConfigs);
-//     animationProcess(animation.value);
-//   }
-// };
-
-// const animationProcess = async (animation: Animation) => {
-//   try {
-//     emit("beforeStart");
-//     emit("running", 0);
-//     animation.play();
-//     interval.value = setInterval(() => {
-//       if (animation?.playState === "running")
-//         emit("running", Number(animation.currentTime?.toFixed(2)));
-//       else clearInterval(interval.value);
-//     }, 10);
-//     animation.addEventListener("finish", () => {
-//       emit("running", Number(animation?.currentTime?.toFixed(2)));
-//       emit("update:modelValue", false);
-//     });
-//     await animation.finished;
-//     if (props.resetAfterEnd) emit("update:modelValue", false);
-//     emit("afterEnd");
-//   } catch (error) {}
-// };
-// );
 </script>
 <template>
   <component :is="tag" ref="animatingElementParentRef">
