@@ -15,6 +15,7 @@ type KeyframeProp = {
   [key: string]: string | number | undefined;
 };
 type ComponentProps = {
+  autoStart?: boolean;
   from?: KeyframeProp;
   to: KeyframeProp | KeyframeProp[];
   tag?: string;
@@ -32,6 +33,7 @@ type ComponentProps = {
 
 const props = withDefaults(defineProps<ComponentProps>(), {
   tag: "div",
+  autoStart: false,
 
   delay: 0,
   direction: "normal",
@@ -95,6 +97,12 @@ const onAnimate = () => {
   animation.value.play();
   // animationProcess(animation.value);
 };
+
+onMounted(() => {
+  if (props.autoStart) {
+    onAnimate();
+  }
+});
 
 // type AnimationProps = {
 //   // custom props
