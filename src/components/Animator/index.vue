@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from "vue";
-import { animate, fromTo } from "../../composables/animation";
+import { useAnimate } from "../../composables/animate";
+const { animate, fromTo } = useAnimate();
+
 type ComponentProps = {
   from?: Keyframe;
   to: Keyframe | Keyframe[];
@@ -59,6 +61,8 @@ const onAnimate = () => {
   if (!animatingElements) return;
 
   const animatingElement = animatingElements[0] as HTMLElement;
+
+  console.log(keyframes.value);
 
   animation.value = animate(
     animatingElement,

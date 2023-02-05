@@ -1,16 +1,3 @@
-export const fromTo = (
-  element: HTMLElement,
-  fromArg: Keyframe | undefined,
-  toArg: Keyframe | Keyframe[]
-) => {
-  let from, to;
-
-  from = fromArg ?? getAllDefaultStylesFromElement(toArg, element);
-  to = toArg;
-
-  return [...(from as any[]), ...(to as any[])] as Keyframe[];
-};
-
 const getAllDefaultStylesFromElement = (
   keyframes: Keyframe | Keyframe[],
   element: HTMLElement
@@ -30,7 +17,20 @@ const getAllDefaultStylesFromElement = (
   return [computedStylesObj];
 };
 
-export const animate = (
+const fromTo = (
+  element: HTMLElement,
+  fromArg: Keyframe | undefined,
+  toArg: Keyframe | Keyframe[]
+) => {
+  let from, to;
+
+  from = fromArg ?? getAllDefaultStylesFromElement(toArg, element);
+  to = toArg;
+
+  return [...(from as any[]), ...(to as any[])] as Keyframe[];
+};
+
+const animate = (
   element: HTMLElement,
   keyframes: Keyframe[],
   effectTiming: EffectTiming
@@ -45,3 +45,8 @@ export const animate = (
 
   return animation;
 };
+
+export const useAnimate = () => ({
+  fromTo,
+  animate,
+});
