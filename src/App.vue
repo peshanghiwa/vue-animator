@@ -1,43 +1,37 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { Animator } from ".";
+const animate = ref(false);
 </script>
 
 <template>
   <div class="test-container">
     <Animator
-      :delay="1000"
+      v-model="animate"
       :to="[
         {
           scale: 2,
-          rotate: '0deg',
-          borderRadius: '20%',
-        },
-        {
-          scale: 2,
           rotate: '270deg',
           borderRadius: '50%',
-        },
-        {
-          scale: 1,
-          rotate: '270deg',
-          borderRadius: '50%',
-        },
-        {
-          scale: 1,
-          rotate: '0deg',
-          borderRadius: '20%',
         },
       ]"
     >
       <div class="test"></div>
     </Animator>
   </div>
+  <div class="button-parent">
+    <button @click="animate = true">play</button>
+    <button @click="animate = false">stop</button>
+    <h1>
+      {{ animate ? "played" : "stopped" }}
+    </h1>
+  </div>
 </template>
 
 <style scoped>
 .test-container {
   width: 100%;
-  height: 90vh;
+  height: 30vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -47,5 +41,13 @@ import { Animator } from ".";
   width: 100px;
   height: 100px;
   background-color: blue;
+}
+
+.button-parent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>
