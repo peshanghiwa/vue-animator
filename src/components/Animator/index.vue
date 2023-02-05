@@ -2,15 +2,15 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useAnimate } from "../../composables/animate";
 const { animate, fromTo } = useAnimate();
-type Keyframe = {
+type KeyframeProp = {
   offset?: number;
   easing?: string;
   [key: string]: string | number | undefined;
 };
 
 type ComponentProps = {
-  from?: Keyframe;
-  to: Keyframe | Keyframe[];
+  from?: KeyframeProp;
+  to: KeyframeProp | KeyframeProp[];
   tag?: string;
 
   delay?: number;
