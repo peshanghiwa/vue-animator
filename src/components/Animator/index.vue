@@ -48,6 +48,15 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   playbackRate: 1,
 });
 
+// ----------------
+// Component Events
+// ----------------
+const emits = defineEmits<{
+  (event: "update:model-value", value: boolean): void;
+  (event: "start"): void;
+  (event: "end"): void;
+  (event: "cancel"): void;
+}>();
 // --------------------------------
 // Animating Element Parent Configs
 // --------------------------------
@@ -97,6 +106,7 @@ const onAnimate = () => {
   );
 
   animation.value.play();
+  emits("start");
 
   // animation.value.onfinish = () => {
   //   emits("update:model-value", false);
