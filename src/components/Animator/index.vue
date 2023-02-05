@@ -116,14 +116,12 @@ const onAnimate = () => {
 watch(
   () => props.modelValue,
   (value) => {
-    console.log("watching modelValue", value);
-
     if (value) onAnimate();
   }
 );
 
 onMounted(() => {
-  if (props.autoStart) {
+  if (props.autoStart || props.modelValue) {
     onAnimate();
   }
 });
@@ -189,22 +187,7 @@ onMounted(() => {
 //     emit("afterEnd");
 //   } catch (error) {}
 // };
-// watch(
-//   () => props.modelValue,
-//   (value) => {
-//     if (value) animate();
-//     else {
-//       if (animation.value?.playState === "running") {
-//         animation.value?.cancel();
-//         emit("cancel");
-//       }
-//     }
-//   }
 // );
-
-onMounted(() => {
-  onAnimate();
-});
 </script>
 <template>
   <component :is="tag" ref="animatingElementParentRef">
