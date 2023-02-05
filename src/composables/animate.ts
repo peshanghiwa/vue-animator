@@ -19,10 +19,12 @@ const getAllDefaultStylesFromElement = (
 };
 
 const fromTo = (
-  element: HTMLElement,
+  element: HTMLElement | undefined,
   fromArg: Keyframe | undefined,
   toArg: Keyframe | Keyframe[]
 ) => {
+  if (!element) return [];
+
   let from, to;
 
   from = fromArg ?? getAllDefaultStylesFromElement(toArg, element);

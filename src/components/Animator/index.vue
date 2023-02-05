@@ -7,7 +7,6 @@ type KeyframeProp = {
   easing?: string;
   [key: string]: string | number | undefined;
 };
-
 type ComponentProps = {
   from?: KeyframeProp;
   to: KeyframeProp | KeyframeProp[];
@@ -38,15 +37,19 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   playbackRate: 1,
 });
 
-const animationContainerElement = ref<HTMLElement>();
+const animatingElementParentRef = ref<HTMLElement>();
+
+const animatingElementParent = computed(() => {
+  const animatingElements = animatingElementParentRef.value?.children;
+  if (!animatingElements) return; // if no children is specified, return an empty HTMLElement
+
+  return animatingElements[0] as HTMLElement;
+});
+
 const animation = ref<Animation>();
 
 const keyframes = computed(() =>
-  fromTo(
-    animationContainerElement.value?.children[0] as HTMLElement,
-    props.from,
-    props.to
-  )
+  fromTo(animatingElementParent.value, props.from, props.to)
 );
 
 const effectTiming = computed<EffectTiming>(() => ({
@@ -62,12 +65,10 @@ const effectTiming = computed<EffectTiming>(() => ({
 }));
 
 const onAnimate = () => {
-  const animatingElements = animationContainerElement.value?.children;
+  const animatingElements = animatingElementParentRef.value?.children;
   if (!animatingElements) return;
 
   const animatingElement = animatingElements[0] as HTMLElement;
-
-  console.log(keyframes.value);
 
   animation.value = animate(
     animatingElement,
@@ -104,7 +105,7 @@ const onAnimate = () => {
 // ]);
 
 // const animate = () => {
-//   const animatingElements = animationContainerElement.value?.children;
+//   const animatingElements = animatingElementParentRef.value?.children;
 //   if (!animatingElements) return;
 
 //   for (let i = 0; i < animatingElements.length; i++) {
@@ -159,7 +160,7 @@ onMounted(() => {
 });
 </script>
 <template>
-  <component :is="tag" ref="animationContainerElement">
+  <component :is="tag" ref="animatingElementParentRef">
     <slot />
   </component>
 </template>
