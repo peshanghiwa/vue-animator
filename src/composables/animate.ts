@@ -11,7 +11,7 @@ const getAllDefaultStylesFromElement = (
   let computedStylesObj: Keyframe = {};
 
   keys.forEach((key) => {
-    if (key === "offset" || key === "easing") return;
+    if (key === "offset" || key === "easing") return; // we skip offset and easing as they are not css properties in this case
     computedStylesObj[key] = computedStyles[key as any] as string | number;
   });
 
@@ -26,7 +26,7 @@ const fromTo = (
   let from, to;
 
   from = fromArg ?? getAllDefaultStylesFromElement(toArg, element);
-  to = toArg;
+  to = Array.isArray(toArg) ? toArg : [toArg];
 
   return [...(from as any[]), ...(to as any[])] as Keyframe[];
 };
