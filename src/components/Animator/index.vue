@@ -15,6 +15,7 @@ type KeyframeProp = {
   [key: string]: string | number | undefined;
 };
 type ComponentProps = {
+  modelValue?: boolean;
   autoStart?: boolean;
   from?: KeyframeProp;
   to: KeyframeProp | KeyframeProp[];
@@ -34,6 +35,7 @@ type ComponentProps = {
 const props = withDefaults(defineProps<ComponentProps>(), {
   tag: "div",
   autoStart: false,
+  modelValue: false,
 
   delay: 0,
   direction: "normal",
@@ -95,8 +97,20 @@ const onAnimate = () => {
   );
 
   animation.value.play();
-  // animationProcess(animation.value);
+
+  // animation.value.onfinish = () => {
+  //   emits("update:model-value", false);
+  // };
 };
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    console.log("watching modelValue", value);
+
+    if (value) onAnimate();
+  }
+);
 
 onMounted(() => {
   if (props.autoStart) {
@@ -165,7 +179,6 @@ onMounted(() => {
 //     emit("afterEnd");
 //   } catch (error) {}
 // };
-
 // watch(
 //   () => props.modelValue,
 //   (value) => {
