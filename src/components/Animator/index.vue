@@ -2,6 +2,11 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useAnimate } from "../../composables/animate";
 const { animate, fromTo } = useAnimate();
+type Keyframe = {
+  offset?: number;
+  easing?: string;
+  [key: string]: string | number | undefined;
+};
 
 type ComponentProps = {
   from?: Keyframe;
