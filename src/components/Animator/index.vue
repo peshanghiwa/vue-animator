@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<ComponentProps>(), {
 // --------------------------------
 const animatingElementParentRef = ref<HTMLElement>();
 
-const animatingElementParent = computed(() => {
+const animatingElement = computed(() => {
   const animatingElements = animatingElementParentRef.value?.children;
   if (!animatingElements) return; // if no children is specified, return an empty HTMLElement
 
@@ -62,7 +62,7 @@ const animation = ref<Animation>();
 // Keyframes Configs
 // -----------------
 const keyframes = computed(() =>
-  fromTo(animatingElementParent.value, props.from, props.to)
+  fromTo(animatingElement.value, props.from, props.to)
 );
 
 // ---------------------
@@ -84,13 +84,10 @@ const effectTiming = computed<EffectTiming>(() => ({
 // Animation Process
 // -----------------
 const onAnimate = () => {
-  const animatingElements = animatingElementParentRef.value?.children;
-  if (!animatingElements) return;
-
-  const animatingElement = animatingElements[0] as HTMLElement;
+  if (!animatingElement.value) return;
 
   animation.value = animate(
-    animatingElement,
+    animatingElement.value,
     keyframes.value,
     effectTiming.value
   );
