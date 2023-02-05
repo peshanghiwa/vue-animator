@@ -14,13 +14,17 @@ type KeyframeProp = {
   easing?: string;
   [key: string]: string | number | undefined;
 };
+
 type ComponentProps = {
+  // custom props
   modelValue?: boolean;
   autoStart?: boolean;
+  resetAfterEnd?: boolean;
   from?: KeyframeProp;
   to: KeyframeProp | KeyframeProp[];
   tag?: string;
 
+  // default animation props
   delay?: number;
   direction?: PlaybackDirection;
   duration?: number | string;
@@ -36,6 +40,7 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   tag: "div",
   autoStart: false,
   modelValue: false,
+  resetAfterEnd: false,
 
   delay: 0,
   direction: "normal",
@@ -57,6 +62,7 @@ const emits = defineEmits<{
   (event: "end"): void;
   (event: "cancel"): void;
 }>();
+
 // --------------------------------
 // Animating Element Parent Configs
 // --------------------------------
@@ -97,26 +103,36 @@ const effectTiming = computed<EffectTiming>(() => ({
 // Animation Process
 // -----------------
 const onAnimate = () => {
-  if (!animatingElement.value) return;
+  if (!animatingElement.value) return; // if no animating element is specified, stop the function.
 
+  // preapre the animation
   animation.value = animate(
     animatingElement.value,
     keyframes.value,
     effectTiming.value
   );
 
+  // start the animation
   animation.value.play();
   emits("start");
 
-  // animation.value.onfinish = () => {
-  //   emits("update:model-value", false);
-  // };
+  // listen for animation end
+  animation.value.onfinish = () => {
+    if (props.resetAfterEnd) emits("update:model-value", false);
+    emits("end");
+  };
 };
 
 watch(
   () => props.modelValue,
   (value) => {
     if (value) onAnimate();
+    else {
+      if (animation.value?.playState === "running") {
+        animation.value?.cancel();
+        emits("cancel");
+      }
+    }
   }
 );
 
