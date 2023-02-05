@@ -1,7 +1,14 @@
 <script lang="ts" setup>
+// -------
+// Imports
+// -------
 import { computed, onMounted, ref, watch } from "vue";
 import { useAnimate } from "../../composables/animate";
 const { animate, fromTo } = useAnimate();
+
+// ---------------
+// Component Props
+// ---------------
 type KeyframeProp = {
   offset?: number;
   easing?: string;
@@ -37,6 +44,9 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   playbackRate: 1,
 });
 
+// --------------------------------
+// Animating Element Parent Configs
+// --------------------------------
 const animatingElementParentRef = ref<HTMLElement>();
 
 const animatingElementParent = computed(() => {
@@ -48,10 +58,16 @@ const animatingElementParent = computed(() => {
 
 const animation = ref<Animation>();
 
+// -----------------
+// Keyframes Configs
+// -----------------
 const keyframes = computed(() =>
   fromTo(animatingElementParent.value, props.from, props.to)
 );
 
+// ---------------------
+// Effect Timing Configs
+// ---------------------
 const effectTiming = computed<EffectTiming>(() => ({
   duration: props.duration,
   iterations: props.iterations,
@@ -64,6 +80,9 @@ const effectTiming = computed<EffectTiming>(() => ({
   playbackRate: props.playbackRate,
 }));
 
+// -----------------
+// Animation Process
+// -----------------
 const onAnimate = () => {
   const animatingElements = animatingElementParentRef.value?.children;
   if (!animatingElements) return;
