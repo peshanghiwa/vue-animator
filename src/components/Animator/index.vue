@@ -9,19 +9,14 @@ const { animate, fromTo } = useAnimate();
 // ---------------
 // Component Props
 // ---------------
-type KeyframeProp = {
-  offset?: number;
-  easing?: string;
-  [key: string]: string | number | undefined;
-};
 
 type ComponentProps = {
   // custom props
   modelValue?: boolean;
   autoStart?: boolean;
   resetAfterEnd?: boolean;
-  from?: KeyframeProp;
-  to: KeyframeProp | KeyframeProp[];
+  from?: Keyframe;
+  to: Keyframe | Keyframe[];
   tag?: string;
 
   // default animation props
