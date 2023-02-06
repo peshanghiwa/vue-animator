@@ -18,19 +18,11 @@ type ComponentProps = {
   resetAfterEnd?: boolean;
   from?: Keyframe;
   to: Keyframe | Keyframe[];
+  onHover?: Keyframe | Keyframe[];
   tag?: string;
   reversible?: boolean;
-
-  // default animation props
-  delay?: number;
-  direction?: PlaybackDirection;
-  duration?: number | string;
-  easing?: string;
-  endDelay?: number;
-  persist?: boolean;
-  iterationStart?: number;
-  iterations?: number;
-  playbackRate?: number;
+  transitions?: TransitionType;
+  hoverTransitions?: TransitionType;
 };
 
 const props = withDefaults(defineProps<ComponentProps>(), {
@@ -39,17 +31,20 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   modelValue: false,
   resetAfterEnd: false,
   reversible: false,
-
-  delay: 0,
-  direction: "normal",
-  duration: 2000,
-  easing: "linear",
-  endDelay: 0,
-  persist: false,
-  iterationStart: 0,
-  iterations: 1,
-  playbackRate: 1,
 });
+
+const defaultTransitions = computed<TransitionType>(() => ({
+  duration: 1000,
+  easing: "ease",
+  ...props.transitions,
+}));
+
+const defaultHoverTransitions = computed<TransitionType>(() => ({
+  duration: 500,
+  easing: "ease",
+  fill: "forwards",
+  ...props.hoverTransitions,
+}));
 
 // ----------------
 // Component Events
@@ -85,30 +80,44 @@ const keyframes = computed<Keyframe[]>(() => {
 
   return [fromKeyframe, ...toKeyframes];
 });
+
+const hoverKeyframes = computed<Keyframe[]>(() => {
+  if (!props.onHover) return [];
+
+  const fromKeyframe = props.from ? props.from : {};
+  const toKeyframes = Array.isArray(props.onHover)
+    ? props.onHover
+    : [props.onHover];
+
+  return [fromKeyframe, ...toKeyframes];
+});
 // ---------------------
 // Effect Timing Configs
 // ---------------------
 const effectTiming = computed<EffectTiming>(() => ({
-  duration: props.duration,
-  iterations: props.iterations,
-  delay: props.delay,
-  easing: props.easing,
-  endDelay: props.endDelay,
-  fill: props.persist ? "forwards" : "none",
-  iterationStart: props.iterationStart,
-  direction: props.direction,
-  playbackRate: props.playbackRate,
+  duration: defaultTransitions.value.duration,
+  iterations: defaultTransitions.value.iterations,
+  delay: defaultTransitions.value.delay,
+  easing: defaultTransitions.value.easing,
+  endDelay: defaultTransitions.value.endDelay,
+  fill: defaultTransitions.value.fill,
+  iterationStart: defaultTransitions.value.iterationStart,
+  direction: defaultTransitions.value.direction,
+  playbackRate: defaultTransitions.value.playbackRate,
 }));
 
 // -----------------
 // Animation Process
 // -----------------
-const onAnimate = (keyframesArg: Keyframe[] = keyframes.value) => {
+const onAnimate = (
+  keyframesArg: Keyframe[] = keyframes.value,
+  effectTimingArg: EffectTiming = effectTiming.value
+) => {
   // preapre the animation
   animation.value = animate(
     animatingElement.value as HTMLElement,
     keyframesArg,
-    effectTiming.value
+    effectTimingArg
   );
 
   // start the animation
@@ -127,6 +136,16 @@ const onReverseAnimate = () => {
   // // start the animation
   animation.value?.reverse();
   emits("start");
+};
+
+const onHoverAnimate = () => {
+  animatingElement.value?.addEventListener("mouseenter", () =>
+    onAnimate(hoverKeyframes.value, defaultHoverTransitions.value)
+  );
+
+  animatingElement.value?.addEventListener("mouseleave", () =>
+    onReverseAnimate()
+  );
 };
 
 // -----------------
@@ -156,9 +175,10 @@ onMounted(() => {
     throw new Error("No element specified in the slot");
 
   // start the animation if autoStart is true or modelValue is true
-  if (props.autoStart || props.modelValue) {
-    onAnimate();
-  }
+  if (props.autoStart || props.modelValue) onAnimate();
+
+  // start hover animation if onHover is specified
+  if (props.onHover) onHoverAnimate();
 });
 </script>
 <template>
