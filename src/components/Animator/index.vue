@@ -2,7 +2,7 @@
 // -------
 // Imports
 // -------
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import type { TransitionType } from "./types";
 import { useAnimate } from "../../composables/animate";
 const { animate } = useAnimate();
@@ -19,10 +19,12 @@ type ComponentProps = {
   from?: Keyframe;
   to: Keyframe | Keyframe[];
   onHover?: Keyframe | Keyframe[];
+  onClick?: Keyframe | Keyframe[];
   tag?: string;
   reversible?: boolean;
   transitions?: TransitionType;
   hoverTransitions?: TransitionType;
+  clickTransitions?: TransitionType;
 };
 
 const props = withDefaults(defineProps<ComponentProps>(), {
@@ -44,6 +46,13 @@ const defaultHoverTransitions = computed<TransitionType>(() => ({
   easing: "ease",
   fill: "forwards",
   ...props.hoverTransitions,
+}));
+
+const defaultClickTransitions = computed<TransitionType>(() => ({
+  duration: 100,
+  easing: "ease",
+  fill: "forwards",
+  ...props.clickTransitions,
 }));
 
 // ----------------
@@ -91,6 +100,18 @@ const hoverKeyframes = computed<Keyframe[]>(() => {
 
   return [fromKeyframe, ...toKeyframes];
 });
+
+const clickKeyframes = computed<Keyframe[]>(() => {
+  if (!props.onClick) return [];
+
+  const fromKeyframe = props.from ? props.from : {};
+  const toKeyframes = Array.isArray(props.onClick)
+    ? props.onClick
+    : [props.onClick];
+
+  return [fromKeyframe, ...toKeyframes];
+});
+
 // ---------------------
 // Effect Timing Configs
 // ---------------------
@@ -148,6 +169,24 @@ const onHoverAnimate = () => {
   );
 };
 
+const mouseDown = ref(false);
+const onClickAnimate = () => {
+  animatingElement.value?.addEventListener("mousedown", (e) => {
+    onAnimate(clickKeyframes.value, defaultClickTransitions.value);
+    mouseDown.value = true;
+  });
+
+  animatingElement.value?.addEventListener("mouseup", (e) => {
+    mouseDown.value ? onReverseAnimate() : null;
+    mouseDown.value = false;
+  });
+
+  animatingElement.value?.addEventListener("mouseleave", (e) => {
+    mouseDown.value ? onReverseAnimate() : null;
+    mouseDown.value = mouseDown.value ? false : mouseDown.value;
+  });
+};
+
 // -----------------
 // Watchers & Effects
 // -----------------
@@ -178,6 +217,11 @@ onMounted(() => {
 
   // start hover animation if onHover is specified
   if (props.onHover) onHoverAnimate();
+
+  // start click animation if onClick is specified
+  if (props.onClick) onClickAnimate();
+});
+
 });
 </script>
 <template>
