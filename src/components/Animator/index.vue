@@ -3,6 +3,7 @@
 // Imports
 // -------
 import { computed, onMounted, ref, watch } from "vue";
+import type { TransitionType } from "./types";
 import { useAnimate } from "../../composables/animate";
 const { animate } = useAnimate();
 
