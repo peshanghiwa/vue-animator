@@ -1,7 +1,7 @@
-const getAllDefaultStylesFromElement = (
-  keyframes: Keyframe | Keyframe[],
-  element: HTMLElement
-): Keyframe[] => {
+const getDefaultKeyframes = (
+  element: HTMLElement,
+  keyframes: Keyframe | Keyframe[]
+): Keyframe => {
   const keyframesArray = Array.isArray(keyframes) ? keyframes : [keyframes];
   const keys = keyframesArray.reduce((keyframes, currentKeyframe) => {
     return [...keyframes, ...Object.keys(currentKeyframe)];
@@ -15,7 +15,7 @@ const getAllDefaultStylesFromElement = (
     computedStylesObj[key] = computedStyles[key as any] as string | number;
   });
 
-  return [computedStylesObj];
+  return computedStylesObj;
 };
 
 const animate = (
@@ -36,4 +36,5 @@ const animate = (
 
 export const useAnimate = () => ({
   animate,
+  getDefaultKeyframes,
 });

@@ -4,7 +4,7 @@
 // -------
 import { computed, onMounted, ref, watch } from "vue";
 import { useAnimate } from "../../composables/animate";
-const { animate } = useAnimate();
+const { animate, getDefaultKeyframes } = useAnimate();
 
 // ---------------
 // Component Props
@@ -75,12 +75,28 @@ const animation = ref<Animation>();
 // -----------------
 // Keyframes Configs
 // -----------------
-const keyframes = computed<Keyframe[]>(() => {
-  const from = props.from ? [props.from] : []; // if from is not specified, return an empty array.
-  const to = Array.isArray(props.to) ? props.to : [props.to];
 
-  return [...from, ...to];
-});
+/**
+ * we need to store the original from keyframe to use it in the reverse animation,
+ * as the normal computed fromKeyframe will be altered by the animation.
+ */
+const originalFromKeyframe = ref<Keyframe>();
+
+const setOriginalKeyframes = () => {
+  const generatedFromKeyframes = getDefaultKeyframes(
+    animatingElement.value as HTMLElement,
+    props.to
+  );
+
+  if (props.from) {
+    originalFromKeyframe.value = {
+      ...generatedFromKeyframes,
+      ...props.from,
+    };
+  } else {
+    originalFromKeyframe.value = { ...generatedFromKeyframes };
+  }
+};
 
 // ---------------------
 // Effect Timing Configs
@@ -139,6 +155,10 @@ onMounted(() => {
   if (!animatingElement.value)
     throw new Error("No element specified in the slot");
 
+  // set the original "from" keyframes
+  setOriginalKeyframes();
+
+  // start the animation if autoStart is true or modelValue is true
   if (props.autoStart || props.modelValue) {
     onAnimate();
   }
