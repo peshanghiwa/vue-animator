@@ -4,7 +4,7 @@
 // -------
 import { computed, onMounted, ref, watch } from "vue";
 import { useAnimate } from "../../composables/animate";
-const { animate, getDefaultKeyframes } = useAnimate();
+const { animate } = useAnimate();
 
 // ---------------
 // Component Props

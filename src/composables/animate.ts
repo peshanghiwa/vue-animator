@@ -1,23 +1,3 @@
-const getDefaultKeyframes = (
-  element: HTMLElement,
-  keyframes: Keyframe | Keyframe[]
-): Keyframe => {
-  const keyframesArray = Array.isArray(keyframes) ? keyframes : [keyframes];
-  const keys = keyframesArray.reduce((keyframes, currentKeyframe) => {
-    return [...keyframes, ...Object.keys(currentKeyframe)];
-  }, [] as string[]);
-
-  const computedStyles = getComputedStyle(element);
-  let computedStylesObj: Keyframe = {};
-
-  keys.forEach((key) => {
-    if (key === "offset" || key === "easing") return; // we skip offset and easing as they are not css properties in this case
-    computedStylesObj[key] = computedStyles[key as any] as string | number;
-  });
-
-  return computedStylesObj;
-};
-
 const animate = (
   element: HTMLElement,
   keyframes: Keyframe[],
@@ -36,5 +16,4 @@ const animate = (
 
 export const useAnimate = () => ({
   animate,
-  getDefaultKeyframes,
 });
