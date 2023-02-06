@@ -222,6 +222,13 @@ onMounted(() => {
   if (props.onClick) onClickAnimate();
 });
 
+onUnmounted(() => {
+  // remove event listeners
+  animatingElement.value?.removeEventListener("mouseenter", () => {});
+  animatingElement.value?.removeEventListener("mouseleave", () => {});
+  animatingElement.value?.removeEventListener("mousedown", () => {});
+  animatingElement.value?.removeEventListener("mouseup", () => {});
+  animatingElement.value?.removeEventListener("mouseleave", () => {});
 });
 </script>
 <template>
