@@ -65,9 +65,9 @@ const animatingElementParentRef = ref<HTMLElement>();
 
 const animatingElement = computed(() => {
   const animatingElements = animatingElementParentRef.value?.children;
-  if (!animatingElements) return; // if no children is specified, return an empty HTMLElement
+  if (!animatingElements) return; // if no children is specified, return undifined.
 
-  return animatingElements[0] as HTMLElement;
+  return animatingElements[0] as HTMLElement; // return the first child element only as this is a single Animator.
 });
 
 const animation = ref<Animation>();
@@ -132,6 +132,10 @@ watch(
 );
 
 onMounted(() => {
+  // Check if the slot element exists
+  if (!animatingElement.value)
+    throw new Error("No element specified in the slot");
+
   if (props.autoStart || props.modelValue) {
     onAnimate();
   }
