@@ -8,6 +8,8 @@ const animate = ref(false);
   <div class="test-container">
     <Animator
       v-model="animate"
+      :transitions="{ fill: 'forwards' }"
+      reversible
       :to="[
         {
           scale: 2,
