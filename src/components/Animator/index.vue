@@ -26,7 +26,7 @@ type ComponentProps = {
   duration?: number | string;
   easing?: string;
   endDelay?: number;
-  fill?: FillMode;
+  persist?: boolean;
   iterationStart?: number;
   iterations?: number;
   playbackRate?: number;
@@ -44,7 +44,7 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   duration: 2000,
   easing: "linear",
   endDelay: 0,
-  fill: "none",
+  persist: false,
   iterationStart: 0,
   iterations: 1,
   playbackRate: 1,
@@ -93,7 +93,7 @@ const effectTiming = computed<EffectTiming>(() => ({
   delay: props.delay,
   easing: props.easing,
   endDelay: props.endDelay,
-  fill: props.fill,
+  fill: props.persist ? "forwards" : "none",
   iterationStart: props.iterationStart,
   direction: props.direction,
   playbackRate: props.playbackRate,
