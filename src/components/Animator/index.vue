@@ -98,6 +98,10 @@ const setOriginalKeyframes = () => {
   }
 };
 
+const fromKeyframe = computed<Keyframe>(() => (props.from ? props.from : {}));
+const toKeyframes = computed<Keyframe[]>(() =>
+  Array.isArray(props.to) ? props.to : [props.to]
+);
 // ---------------------
 // Effect Timing Configs
 // ---------------------
@@ -117,12 +121,10 @@ const effectTiming = computed<EffectTiming>(() => ({
 // Animation Process
 // -----------------
 const onAnimate = () => {
-  if (!animatingElement.value) return; // if no animating element is specified, stop the function.
-
   // preapre the animation
   animation.value = animate(
-    animatingElement.value,
-    keyframes.value,
+    animatingElement.value as HTMLElement,
+    [fromKeyframe.value, ...toKeyframes.value],
     effectTiming.value
   );
 
