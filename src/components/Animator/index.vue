@@ -18,6 +18,7 @@ type ComponentProps = {
   from?: Keyframe;
   to: Keyframe | Keyframe[];
   tag?: string;
+  reversible?: boolean;
 
   // default animation props
   delay?: number;
@@ -36,6 +37,7 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   autoStart: false,
   modelValue: false,
   resetAfterEnd: false,
+  reversible: false,
 
   delay: 0,
   direction: "normal",
@@ -76,32 +78,12 @@ const animation = ref<Animation>();
 // Keyframes Configs
 // -----------------
 
-/**
- * we need to store the original from keyframe to use it in the reverse animation,
- * as the normal computed fromKeyframe will be altered by the animation.
- */
-const originalFromKeyframe = ref<Keyframe>();
+const keyframes = computed<Keyframe[]>(() => {
+  const fromKeyframe = props.from ? props.from : {};
+  const toKeyframes = Array.isArray(props.to) ? props.to : [props.to];
 
-const setOriginalKeyframes = () => {
-  const generatedFromKeyframes = getDefaultKeyframes(
-    animatingElement.value as HTMLElement,
-    props.to
-  );
-
-  if (props.from) {
-    originalFromKeyframe.value = {
-      ...generatedFromKeyframes,
-      ...props.from,
-    };
-  } else {
-    originalFromKeyframe.value = { ...generatedFromKeyframes };
-  }
-};
-
-const fromKeyframe = computed<Keyframe>(() => (props.from ? props.from : {}));
-const toKeyframes = computed<Keyframe[]>(() =>
-  Array.isArray(props.to) ? props.to : [props.to]
-);
+  return [fromKeyframe, ...toKeyframes];
+});
 // ---------------------
 // Effect Timing Configs
 // ---------------------
@@ -124,7 +106,7 @@ const onAnimate = () => {
   // preapre the animation
   animation.value = animate(
     animatingElement.value as HTMLElement,
-    [fromKeyframe.value, ...toKeyframes.value],
+    keyframes.value,
     effectTiming.value
   );
 
@@ -134,9 +116,16 @@ const onAnimate = () => {
 
   // listen for animation end
   animation.value.onfinish = () => {
-    if (props.resetAfterEnd) emits("update:model-value", false);
     emits("end");
+    if (props.resetAfterEnd) emits("update:model-value", false);
   };
+};
+
+const onReverseAnimate = () => {
+  if (!animation.value) return;
+  // // start the animation
+  animation.value?.reverse();
+  emits("start");
 };
 
 // -----------------
@@ -149,17 +138,11 @@ watch(
     else {
       if (animation.value?.playState === "running") {
         animation.value?.cancel();
+        emits("update:model-value", false);
         emits("cancel");
       }
+      if (props.reversible) onReverseAnimate();
     }
-  }
-);
-
-// watch both props.from and props.to to run the setOriginalKeyframes function
-watch(
-  () => [props.from, props.to],
-  () => {
-    setOriginalKeyframes();
   }
 );
 
@@ -170,9 +153,6 @@ onMounted(() => {
   // Check if the slot element exists
   if (!animatingElement.value)
     throw new Error("No element specified in the slot");
-
-  // set the original "from" keyframes
-  setOriginalKeyframes();
 
   // start the animation if autoStart is true or modelValue is true
   if (props.autoStart || props.modelValue) {
