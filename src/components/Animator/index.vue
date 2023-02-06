@@ -158,7 +158,6 @@ watch(
     else {
       if (animation.value?.playState === "running") {
         animation.value?.cancel();
-        emits("update:model-value", false);
         emits("cancel");
       }
       if (props.reversible) onReverseAnimate();
