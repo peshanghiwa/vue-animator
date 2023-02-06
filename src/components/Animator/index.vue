@@ -139,6 +139,9 @@ const onAnimate = () => {
   };
 };
 
+// -----------------
+// Watchers & Effects
+// -----------------
 watch(
   () => props.modelValue,
   (value) => {
@@ -152,6 +155,17 @@ watch(
   }
 );
 
+// watch both props.from and props.to to run the setOriginalKeyframes function
+watch(
+  () => [props.from, props.to],
+  () => {
+    setOriginalKeyframes();
+  }
+);
+
+// -----------------
+// Lifecycle Methods
+// -----------------
 onMounted(() => {
   // Check if the slot element exists
   if (!animatingElement.value)
