@@ -102,11 +102,11 @@ const effectTiming = computed<EffectTiming>(() => ({
 // -----------------
 // Animation Process
 // -----------------
-const onAnimate = () => {
+const onAnimate = (keyframesArg: Keyframe[] = keyframes.value) => {
   // preapre the animation
   animation.value = animate(
     animatingElement.value as HTMLElement,
-    keyframes.value,
+    keyframesArg,
     effectTiming.value
   );
 
