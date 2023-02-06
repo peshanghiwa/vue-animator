@@ -4,7 +4,7 @@
 // -------
 import { computed, onMounted, ref, watch } from "vue";
 import { useAnimate } from "../../composables/animate";
-const { animate, fromTo } = useAnimate();
+const { animate } = useAnimate();
 
 // ---------------
 // Component Props
@@ -75,9 +75,12 @@ const animation = ref<Animation>();
 // -----------------
 // Keyframes Configs
 // -----------------
-const keyframes = computed(() =>
-  fromTo(animatingElement.value, props.from, props.to)
-);
+const keyframes = computed<Keyframe[]>(() => {
+  const from = props.from ? [props.from] : []; // if from is not specified, return an empty array.
+  const to = Array.isArray(props.to) ? props.to : [props.to];
+
+  return [...from, ...to];
+});
 
 // ---------------------
 // Effect Timing Configs
