@@ -196,6 +196,7 @@ watch(
     if (value) onAnimate();
     else {
       if (animation.value?.playState === "running") {
+        //! check props.reversible before cancelling the animation
         animation.value?.cancel();
         emits("cancel");
       }
