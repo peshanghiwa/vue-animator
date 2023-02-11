@@ -160,28 +160,33 @@ const onReverseAnimate = () => {
 };
 
 const onHoverAnimate = () => {
-  animatingElement.value?.addEventListener("mouseenter", () =>
-    onAnimate(hoverKeyframes.value, hoverTransitions.value)
-  );
+  animatingElement.value?.addEventListener("mouseenter", () => {
+    if (props.modelValue) return;
+    onAnimate(hoverKeyframes.value, hoverTransitions.value);
+  });
 
-  animatingElement.value?.addEventListener("mouseleave", () =>
-    onReverseAnimate()
-  );
+  animatingElement.value?.addEventListener("mouseleave", () => {
+    if (props.modelValue) return;
+    onReverseAnimate();
+  });
 };
 
 const mouseDown = ref(false);
 const onClickAnimate = () => {
   animatingElement.value?.addEventListener("mousedown", (e) => {
+    if (props.modelValue) return;
     onAnimate(clickKeyframes.value, clickTransitions.value);
     mouseDown.value = true;
   });
 
   animatingElement.value?.addEventListener("mouseup", (e) => {
+    if (props.modelValue) return;
     mouseDown.value ? onReverseAnimate() : null;
     mouseDown.value = false;
   });
 
   animatingElement.value?.addEventListener("mouseleave", (e) => {
+    if (props.modelValue) return;
     mouseDown.value ? onReverseAnimate() : null;
     mouseDown.value = mouseDown.value ? false : mouseDown.value;
   });
