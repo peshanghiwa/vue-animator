@@ -159,37 +159,71 @@ const onReverseAnimate = () => {
   emits("start");
 };
 
-const onHoverAnimate = () => {
-  animatingElement.value?.addEventListener("mouseenter", () => {
-    if (props.modelValue) return;
-    onAnimate(hoverKeyframes.value, hoverTransitions.value);
+// -----------------
+// Gesture Animations
+// -----------------
+const eventListenersAnimate = (
+  animatingElement: HTMLElement,
+  events: {
+    eventName: string;
+    callback: () => void;
+  }[]
+) => {
+  events.forEach(({ eventName, callback }) => {
+    animatingElement.addEventListener(eventName, () => {
+      if (props.modelValue) return;
+      callback();
+    });
   });
+};
 
-  animatingElement.value?.addEventListener("mouseleave", () => {
-    if (props.modelValue) return;
-    onReverseAnimate();
-  });
+const removeEventListeners = (
+  animatingElement: HTMLElement,
+  events: string[]
+) => {
+  events.forEach((eventName) =>
+    animatingElement.removeEventListener(eventName, () => {})
+  );
+};
+
+const onHoverAnimate = () => {
+  eventListenersAnimate(animatingElement.value as HTMLElement, [
+    {
+      eventName: "mouseenter",
+      callback: () => onAnimate(hoverKeyframes.value, hoverTransitions.value),
+    },
+    {
+      eventName: "mouseleave",
+      callback: () => onReverseAnimate(),
+    },
+  ]);
 };
 
 const mouseDown = ref(false);
 const onClickAnimate = () => {
-  animatingElement.value?.addEventListener("mousedown", (e) => {
-    if (props.modelValue) return;
-    onAnimate(clickKeyframes.value, clickTransitions.value);
-    mouseDown.value = true;
-  });
-
-  animatingElement.value?.addEventListener("mouseup", (e) => {
-    if (props.modelValue) return;
-    mouseDown.value ? onReverseAnimate() : null;
-    mouseDown.value = false;
-  });
-
-  animatingElement.value?.addEventListener("mouseleave", (e) => {
-    if (props.modelValue) return;
-    mouseDown.value ? onReverseAnimate() : null;
-    mouseDown.value = mouseDown.value ? false : mouseDown.value;
-  });
+  eventListenersAnimate(animatingElement.value as HTMLElement, [
+    {
+      eventName: "mousedown",
+      callback: () => {
+        onAnimate(clickKeyframes.value, clickTransitions.value);
+        mouseDown.value = true;
+      },
+    },
+    {
+      eventName: "mouseup",
+      callback: () => {
+        mouseDown.value ? onReverseAnimate() : null;
+        mouseDown.value = false;
+      },
+    },
+    {
+      eventName: "mouseleave",
+      callback: () => {
+        mouseDown.value ? onReverseAnimate() : null;
+        mouseDown.value = mouseDown.value ? false : mouseDown.value;
+      },
+    },
+  ]);
 };
 
 // -----------------
@@ -205,6 +239,8 @@ watch(
         animation.value?.cancel();
         emits("cancel");
       }
+
+      // if reversible is true, reverse the animation when modalValue is false
       if (props.reversible) onReverseAnimate();
     }
   }
@@ -229,16 +265,21 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // remove event listeners
-  animatingElement.value?.removeEventListener("mouseenter", () => {});
-  animatingElement.value?.removeEventListener("mouseleave", () => {});
-  animatingElement.value?.removeEventListener("mousedown", () => {});
-  animatingElement.value?.removeEventListener("mouseup", () => {});
-  animatingElement.value?.removeEventListener("mouseleave", () => {});
+  removeEventListeners(animatingElement.value as HTMLElement, [
+    "mouseenter",
+    "mouseleave",
+    "mousedown",
+    "mouseup",
+    "mouseleave",
+  ]);
 });
+
+const test = () => {
+  console.log("helloo");
+};
 </script>
 <template>
   <component :is="tag" ref="animatingElementParentRef">
-    <slot />
+    <slot @mouseenter="test" />
   </component>
 </template>
