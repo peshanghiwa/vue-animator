@@ -35,20 +35,20 @@ const props = withDefaults(defineProps<ComponentProps>(), {
   reversible: false,
 });
 
-const defaultTransitions = computed<TransitionType>(() => ({
+const modelValueTransitions = computed<TransitionType>(() => ({
   duration: 1000,
   easing: "ease",
   ...props.transitions,
 }));
 
-const defaultHoverTransitions = computed<TransitionType>(() => ({
+const hoverTransitions = computed<TransitionType>(() => ({
   duration: 500,
   easing: "ease",
   fill: "forwards",
   ...props.hoverTransitions,
 }));
 
-const defaultClickTransitions = computed<TransitionType>(() => ({
+const clickTransitions = computed<TransitionType>(() => ({
   duration: 100,
   easing: "ease",
   fill: "forwards",
@@ -83,7 +83,7 @@ const animation = ref<Animation>();
 // Keyframes Configs
 // -----------------
 
-const keyframes = computed<Keyframe[]>(() => {
+const modelValueKeyframes = computed<Keyframe[]>(() => {
   const fromKeyframe = props.from ? props.from : {};
   const toKeyframes = Array.isArray(props.to) ? props.to : [props.to];
 
@@ -116,22 +116,22 @@ const clickKeyframes = computed<Keyframe[]>(() => {
 // Effect Timing Configs
 // ---------------------
 const effectTiming = computed<EffectTiming>(() => ({
-  duration: defaultTransitions.value.duration,
-  iterations: defaultTransitions.value.iterations,
-  delay: defaultTransitions.value.delay,
-  easing: defaultTransitions.value.easing,
-  endDelay: defaultTransitions.value.endDelay,
-  fill: defaultTransitions.value.fill,
-  iterationStart: defaultTransitions.value.iterationStart,
-  direction: defaultTransitions.value.direction,
-  playbackRate: defaultTransitions.value.playbackRate,
+  duration: modelValueTransitions.value.duration,
+  iterations: modelValueTransitions.value.iterations,
+  delay: modelValueTransitions.value.delay,
+  easing: modelValueTransitions.value.easing,
+  endDelay: modelValueTransitions.value.endDelay,
+  fill: modelValueTransitions.value.fill,
+  iterationStart: modelValueTransitions.value.iterationStart,
+  direction: modelValueTransitions.value.direction,
+  playbackRate: modelValueTransitions.value.playbackRate,
 }));
 
 // -----------------
 // Animation Process
 // -----------------
 const onAnimate = (
-  keyframesArg: Keyframe[] = keyframes.value,
+  keyframesArg: Keyframe[] = modelValueKeyframes.value,
   effectTimingArg: EffectTiming = effectTiming.value
 ) => {
   // preapre the animation
@@ -161,7 +161,7 @@ const onReverseAnimate = () => {
 
 const onHoverAnimate = () => {
   animatingElement.value?.addEventListener("mouseenter", () =>
-    onAnimate(hoverKeyframes.value, defaultHoverTransitions.value)
+    onAnimate(hoverKeyframes.value, hoverTransitions.value)
   );
 
   animatingElement.value?.addEventListener("mouseleave", () =>
@@ -172,7 +172,7 @@ const onHoverAnimate = () => {
 const mouseDown = ref(false);
 const onClickAnimate = () => {
   animatingElement.value?.addEventListener("mousedown", (e) => {
-    onAnimate(clickKeyframes.value, defaultClickTransitions.value);
+    onAnimate(clickKeyframes.value, clickTransitions.value);
     mouseDown.value = true;
   });
 
