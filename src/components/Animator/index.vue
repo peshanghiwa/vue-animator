@@ -82,34 +82,32 @@ const animation = ref<Animation>();
 // -----------------
 // Keyframes Configs
 // -----------------
+const fromKeyframe = computed<Keyframe>(() => props.from ?? {});
 
 const modelValueKeyframes = computed<Keyframe[]>(() => {
-  const fromKeyframe = props.from ? props.from : {};
   const toKeyframes = Array.isArray(props.to) ? props.to : [props.to];
 
-  return [fromKeyframe, ...toKeyframes];
+  return [fromKeyframe.value, ...toKeyframes];
 });
 
 const hoverKeyframes = computed<Keyframe[]>(() => {
   if (!props.onHover) return [];
 
-  const fromKeyframe = props.from ? props.from : {};
   const toKeyframes = Array.isArray(props.onHover)
     ? props.onHover
     : [props.onHover];
 
-  return [fromKeyframe, ...toKeyframes];
+  return [fromKeyframe.value, ...toKeyframes];
 });
 
 const clickKeyframes = computed<Keyframe[]>(() => {
   if (!props.onClick) return [];
 
-  const fromKeyframe = props.from ? props.from : {};
   const toKeyframes = Array.isArray(props.onClick)
     ? props.onClick
     : [props.onClick];
 
-  return [fromKeyframe, ...toKeyframes];
+  return [fromKeyframe.value, ...toKeyframes];
 });
 
 // ---------------------
