@@ -177,15 +177,6 @@ const eventListenersAnimate = (
   });
 };
 
-const removeEventListeners = (
-  animatingElement: HTMLElement,
-  events: string[]
-) => {
-  events.forEach((eventName) =>
-    animatingElement.removeEventListener(eventName, () => {})
-  );
-};
-
 const onHoverAnimate = () => {
   eventListenersAnimate(animatingElement.value as HTMLElement, [
     {
@@ -265,13 +256,11 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  removeEventListeners(animatingElement.value as HTMLElement, [
-    "mouseenter",
-    "mouseleave",
-    "mousedown",
-    "mouseup",
-    "mouseleave",
-  ]);
+  ["mouseenter", "mouseleave", "mousedown", "mouseup", "mouseleave"].forEach(
+    (eventName) => {
+      animatingElement.value?.removeEventListener(eventName, () => {});
+    }
+  );
 });
 
 const test = () => {
