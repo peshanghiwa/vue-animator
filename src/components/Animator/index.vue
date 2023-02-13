@@ -2,7 +2,7 @@
 // -------
 // Imports
 // -------
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch, Ref } from "vue";
 import type { TransitionType } from "./types";
 import { useAnimate } from "../../composables/animate";
 const { animate, gestureAnimate } = useAnimate();
@@ -75,7 +75,7 @@ const animatingElement = computed(() => {
   if (!animatingElements) return; // if no children is specified, return undifined.
 
   return animatingElements[0] as HTMLElement; // return the first child element only as this is a single Animator.
-});
+}) as Ref<HTMLElement>; // cast to Ref<HTMLElement> as it always exists, if not it will be handled in the mount hook.
 
 const animation = ref<Animation>();
 
@@ -134,7 +134,7 @@ const onAnimate = (
 ) => {
   // preapre the animation
   animation.value = animate(
-    animatingElement.value as HTMLElement,
+    animatingElement.value,
     keyframesArg,
     effectTimingArg
   );
@@ -162,7 +162,7 @@ const onReverseAnimate = () => {
 // -----------------
 
 const onHoverAnimate = () => {
-  gestureAnimate(animatingElement.value as HTMLElement, [
+  gestureAnimate(animatingElement.value, [
     {
       eventName: "mouseenter",
       callback: () => {
@@ -182,7 +182,7 @@ const onHoverAnimate = () => {
 
 const mouseDown = ref(false);
 const onClickAnimate = () => {
-  gestureAnimate(animatingElement.value as HTMLElement, [
+  gestureAnimate(animatingElement.value, [
     {
       eventName: "mousedown",
       callback: () => {
@@ -235,7 +235,7 @@ watch(
 onMounted(() => {
   // Check if the slot element exists
   if (!animatingElement.value)
-    throw new Error("No element specified in the slot");
+    throw new Error("No element specified as a slot to animate.");
 
   // start the animation if autoStart is true or modelValue is true
   if (props.autoStart || props.modelValue) onAnimate();
