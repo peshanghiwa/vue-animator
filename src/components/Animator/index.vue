@@ -5,7 +5,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import type { TransitionType } from "./types";
 import { useAnimate } from "../../composables/animate";
-const { animate } = useAnimate();
+const { animate, gestureAnimate } = useAnimate();
 
 // ---------------
 // Component Props
@@ -160,40 +160,33 @@ const onReverseAnimate = () => {
 // -----------------
 // Gesture Animations
 // -----------------
-const eventListenersAnimate = (
-  animatingElement: HTMLElement,
-  events: {
-    eventName: string;
-    callback: () => void;
-  }[]
-) => {
-  events.forEach(({ eventName, callback }) => {
-    animatingElement.addEventListener(eventName, () => {
-      if (props.modelValue) return;
-      callback();
-    });
-  });
-};
 
 const onHoverAnimate = () => {
-  eventListenersAnimate(animatingElement.value as HTMLElement, [
+  gestureAnimate(animatingElement.value as HTMLElement, [
     {
       eventName: "mouseenter",
-      callback: () => onAnimate(hoverKeyframes.value, hoverTransitions.value),
+      callback: () => {
+        if (props.modelValue) return;
+        onAnimate(hoverKeyframes.value, hoverTransitions.value);
+      },
     },
     {
       eventName: "mouseleave",
-      callback: () => onReverseAnimate(),
+      callback: () => {
+        if (props.modelValue) return;
+        onReverseAnimate();
+      },
     },
   ]);
 };
 
 const mouseDown = ref(false);
 const onClickAnimate = () => {
-  eventListenersAnimate(animatingElement.value as HTMLElement, [
+  gestureAnimate(animatingElement.value as HTMLElement, [
     {
       eventName: "mousedown",
       callback: () => {
+        if (props.modelValue) return;
         onAnimate(clickKeyframes.value, clickTransitions.value);
         mouseDown.value = true;
       },
@@ -201,6 +194,7 @@ const onClickAnimate = () => {
     {
       eventName: "mouseup",
       callback: () => {
+        if (props.modelValue) return;
         mouseDown.value ? onReverseAnimate() : null;
         mouseDown.value = false;
       },
@@ -208,6 +202,7 @@ const onClickAnimate = () => {
     {
       eventName: "mouseleave",
       callback: () => {
+        if (props.modelValue) return;
         mouseDown.value ? onReverseAnimate() : null;
         mouseDown.value = mouseDown.value ? false : mouseDown.value;
       },
@@ -224,7 +219,6 @@ watch(
     if (value) onAnimate();
     else {
       if (animation.value?.playState === "running") {
-        //! check props.reversible before cancelling the animation
         animation.value?.cancel();
         emits("cancel");
       }

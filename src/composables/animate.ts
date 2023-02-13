@@ -14,6 +14,19 @@ const animate = (
   return animation;
 };
 
+const gestureAnimate = (
+  animatingElement: HTMLElement,
+  events: {
+    eventName: string;
+    callback: () => void;
+  }[]
+) => {
+  events.forEach(({ eventName, callback }) => {
+    animatingElement.addEventListener(eventName, () => callback());
+  });
+};
+
 export const useAnimate = () => ({
   animate,
+  gestureAnimate,
 });
